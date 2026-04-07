@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "973266147881",
+    "project_id": "bookreadanddownloadforfree",
+    "storage_bucket": "bookreadanddownloadforfree.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:973266147881:android:fb0278551cec963fa11a38",
+        "android_client_info": {
+          "package_name": "com.example.bookreadanddownloadforfree"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "973266147881-0gtik8akm867v08cc7pril5k53ieh9sk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7O6aQc34gXI9Wd6jTbZ5tmDCOP8yueXc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "973266147881-0gtik8akm867v08cc7pril5k53ieh9sk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
