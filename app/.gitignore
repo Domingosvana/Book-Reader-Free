@@ -1,1 +1,23 @@
 /build
+
+# Android / Build
+build/
+.gradle/
+.idea/
+
+# Local config
+local.properties
+
+# Secrets
+.env
+*.jks
+*.keystore
+
+# Firebase
+google-services.json
+
+# Logs
+*.log
+
+data
+core
