@@ -12,6 +12,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import io.ktor.websocket.Frame
@@ -19,7 +20,9 @@ import io.ktor.websocket.Frame
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LibraryScreenTopBar() {
+fun LibraryScreenTopBar(
+    title:String = "Biblioteca"
+) {
     TopAppBar(
         title = {
             Box(
@@ -27,19 +30,12 @@ fun LibraryScreenTopBar() {
                 contentAlignment = Alignment.Center // centraliza o conteúdo no meio
             ) {
                 Text(
-                    text = "Biblioteca",
+                    text = title,
                     textAlign = TextAlign.Center
                 )
             }
         },
-        actions = {
-            IconButton(onClick = { /* TODO */ }) {
-                Icon(
-                    imageVector = Icons.Filled.FilterTiltShift,
-                    contentDescription = "Filter"
-                )
-            }
-        }
+
     )
 }
 

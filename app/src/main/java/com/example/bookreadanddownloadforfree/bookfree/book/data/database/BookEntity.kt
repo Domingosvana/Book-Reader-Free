@@ -1,5 +1,7 @@
 package com.example.bookreadanddownloadforfree.bookfree.book.data.database
 
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -25,9 +27,11 @@ data class BookEntity(
     val translators: List<String>? = null,
     val copyright: Boolean? = null,
     val acsTokenLink: String? = null,
+    val favoritedAt: Long = System.currentTimeMillis()
+
+
 )
 
-// ✅ SEARCH BOOK ENTITY (Cache de Pesquisa)
 @Entity(
     tableName = "search_books",
     primaryKeys = ["id", "languages"] // ✅ Chave Composta Correta
@@ -58,8 +62,9 @@ data class SearchBookEntity(
     val translators: List<String>? = null,
     val copyright: Boolean? = null,
     val acsTokenLink: String? = null,
-)
 
+
+)
 // ✅ BOOK POPULAR ENTITY (Livros Populares)
 @Entity(primaryKeys = ["id", "languages"]) // ✅ Corrigido: Removido os dois @PrimaryKey
 data class BookPopularEntity(
@@ -88,7 +93,6 @@ data class BookPopularEntity(
     val copyright: Boolean? = null,
     val acsTokenLink: String? = null,
 )
-
 // ✅ USER INTEREST ENTITY (Interesses - Permanece com Chave Única)
 @Entity
 data class UserInterestEntity(
@@ -96,4 +100,17 @@ data class UserInterestEntity(
     val count: Int = 1,
     val lastInteracted: Long = System.currentTimeMillis(),
     val type: String
+)
+
+
+
+
+// No arquivo da sua Entity ou em um arquivo de constantes
+val bookGradients = listOf(
+    listOf(0xFF42A5F5.toInt(), 0xFF1E88E5.toInt()), // Azul
+    listOf(0xFF66BB6A.toInt(), 0xFF43A047.toInt()), // Verde
+    listOf(0xFFFFA726.toInt(), 0xFFFB8C00.toInt()), // Laranja
+    listOf(0xFFAB47BC.toInt(), 0xFF8E24AA.toInt()), // Roxo
+    listOf(0xFFEF5350.toInt(), 0xFFE53935.toInt()), // Vermelho
+    listOf(0xFF26C6DA.toInt(), 0xFF00ACC1.toInt())  // Ciano
 )

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -122,43 +124,43 @@ fun BookListItemNewSearch(
             // --- 1. SEÇÃO DA CAPA ---
             Box(
                 modifier = Modifier
-                    .width(100.dp) // Largura fixa para manter o padrão
-                    .height(150.dp), // Altura fixa para evitar saltos no layout
+                    .width(100.dp)
+                    .height(150.dp),
                 contentAlignment = Alignment.Center
             ) {
-                var imageLoadResult by remember { mutableStateOf<Result<Painter>?>(null) }
+                // 1. Verificamos se a URL é minimamente válida
+                val isUrlInvalid = book.coverUrl.isNullOrBlank() ||
+                        book.coverUrl.contains("placeholder") ||
+                        book.coverUrl.contains("no_image")
 
-                val painter = rememberAsyncImagePainter(
-                    model = book.coverUrl,
-                    contentScale = ContentScale.Crop,
-                    onSuccess = { imageLoadResult = Result.success(it.painter) },
-                    onError = { imageLoadResult = Result.failure(it.result.throwable) }
-                )
+                if (isUrlInvalid) {
+                    // SE A URL FOR RUIM, MOSTRA O GRADIENTE DIRETO
+                    ImagemError(book = book, modifier = Modifier.fillMaxSize())
+                } else {
+                    var imageLoadResult by remember { mutableStateOf<Result<Painter>?>(null) }
+                    val painter = rememberAsyncImagePainter(
+                        model = book.coverUrl,
+                        contentScale = ContentScale.Crop,
+                        onSuccess = { imageLoadResult = Result.success(it.painter) },
+                        onError = { imageLoadResult = Result.failure(it.result.throwable) }
+                    )
 
-                val painterState by painter.state.collectAsStateWithLifecycle()
-                val transition by animateFloatAsState(
-                    targetValue = if (painterState is AsyncImagePainter.State.Success) 1f else 0f,
-                    animationSpec = tween(durationMillis = 600)
-                )
+                    val painterState by painter.state.collectAsStateWithLifecycle()
 
-                when (val result = imageLoadResult) {
-                    null -> PulseAnimation(modifier = Modifier.fillMaxSize())
-                    else -> {
-                        if (result.isSuccess) {
-                            Image(
-                                painter = painter,
-                                contentDescription = book.title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .graphicsLayer {
-                                        alpha = transition
-                                        scaleX = 0.9f + (0.1f * transition)
-                                        scaleY = 0.9f + (0.1f * transition)
-                                    }
-                            )
-                        } else {
-                            ImagemError(book = book)
+                    when (val result = imageLoadResult) {
+                        null -> PulseAnimation(modifier = Modifier.fillMaxSize())
+                        else -> {
+                            if (result.isSuccess) {
+                                Image(
+                                    painter = painter,
+                                    contentDescription = book.title,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                // SE O DOWNLOAD FALHAR, MOSTRA O GRADIENTE
+                                ImagemError(book = book, modifier = Modifier.fillMaxSize())
+                            }
                         }
                     }
                 }
@@ -250,7 +252,7 @@ fun BookListItemNewSearch(
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    tint = if (isFavorite)  Color(0xFFFFC107) else MaterialTheme.colorScheme.outline,
+                    tint = if (isFavorite)  Color(0xFFFFC107) else MaterialTheme.colorScheme.surfaceBright,
                     contentDescription = null
                 )
             }
@@ -547,7 +549,8 @@ fun BookListItemSearchPreview(){
             numEditions = 234,
             publisher = "",
             format = "",
-            source = ""
+            source = "",
+            colors = listOf()
         ),
         onClick = {},
         onFavoriteClick = {},

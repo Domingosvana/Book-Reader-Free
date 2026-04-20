@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmarks
 import androidx.compose.material.icons.filled.MenuBook
@@ -29,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -46,12 +44,13 @@ import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_de
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_detail.BookDetailScreenRootw
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_detail.BookDetailViewModel
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_filter.FilterScreenRoot
-import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_filter.FilterViewModel
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_libraryscreen.BookLibraryScreenRoot
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_libraryscreen.BookLibraryViewModel
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_list_screen.BookListScreenRoot
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_list_screen.BookListViewModel
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_list_screen.SelectedBookViewModel
+import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_profile.ProfileScreenRoot
+import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_profile.ProfileViewModel
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.search_screen.BookSearchViewModel
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.search_screen.SearchScreenRoot
 import org.koin.androidx.compose.koinViewModel
@@ -92,6 +91,10 @@ fun MainScreen (modifier: Modifier = Modifier) {
         } else if (destination?.hasRoute<Route.BookLibrary>() == true) {
             titleTopBarId = R.string.Meus_livros
         }
+        else if (destination?.hasRoute<Route.Profile>() == true){
+
+        }
+
     }
 
     Surface(
@@ -185,7 +188,7 @@ val navigationItem = listOf(
     NavigationItem(
     title = R.string.Perfil,
     icon = Icons.Default.Person,
-    router = Route.BookLibrary
+    router = Route.Profile
 )
 )
 
@@ -228,7 +231,7 @@ NavigationBarItem(
     //alwaysShowLabel = true
     colors = NavigationBarItemDefaults.colors(
         selectedIconColor = MaterialTheme.colorScheme.primary,
-        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+        indicatorColor = MaterialTheme.colorScheme.surfaceBright,
         unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
     )
 )
@@ -301,184 +304,141 @@ alwaysShowLabel = true)
 
 
 @Composable
-fun MainContentScreen(navController: NavHostController,
-          contentPadding: PaddingValues) {
-
-
-NavHost(
-    navController = navController,
-    startDestination = Route.BookGraph,
-    modifier = Modifier
+fun MainContentScreen(
+    navController: NavHostController,
+    contentPadding: PaddingValues
 ) {
+    NavHost(
+        navController = navController,
+        startDestination = Route.BookGraph,
+        modifier = Modifier // Removi o padding daqui para controlar dentro de cada tela se necessário
+    ) {
+        navigation<Route.BookGraph>(
+            startDestination = Route.BookList
+        ) {
+            // --- TELA: BIBLIOTECA (LISTA GERAL) ---
+            composable<Route.BookList> { entry ->
+                val viewModel = koinViewModel<BookListViewModel>()
+                val selectedBookViewModel = entry.sharedKoinViewModel<SelectedBookViewModel>(navController)
 
-    navigation<Route.BookGraph>(
-    startDestination = Route.BookList
-) {
-    composable<Route.BookList> {
-        val viewModel = koinViewModel<BookListViewModel>()
-        val selectedBookViewModel =
-        it.sharedKoinViewModel<SelectedBookViewModel>(navController)
+                // REMOVIDO: onSelectedBook(null) para não apagar o estado ao voltar
 
-    LaunchedEffect(key1 = true) {
-        selectedBookViewModel.onSelectedBook(null)
-    }
+                BookListScreenRoot(
+                    viewModel = viewModel,
+                    modifier = Modifier.padding(bottom = contentPadding.calculateBottomPadding()),
+                    onBookClick = { book ->
+                        selectedBookViewModel.onSelectedBook(book)
+                        navController.navigate(Route.BookDetail(book.id))
+                    },
+                    onClickNavigate = {
+                        navController.navigate(Route.BookSearch)
+                    }
+                )
+            }
 
-    BookListScreenRoot(
-        viewModel = viewModel,
-        modifier = Modifier,  //  modifier = Modifier.padding(top =contentPadding.calculateTopPadding(), bottom = contentPadding.calculateBottomPadding()),
+            // --- TELA: MEUS LIVROS (LIBRARY) ---
+            composable<Route.BookLibrary> { entry ->
+                val viewModel = koinViewModel<BookLibraryViewModel>()
+                val selectedBookViewModel = entry.sharedKoinViewModel<SelectedBookViewModel>(navController)
 
+                BookLibraryScreenRoot(
+                    viewModel = viewModel,
+                    modifier = Modifier.padding(
+                        top = contentPadding.calculateTopPadding(),
+                        bottom = contentPadding.calculateBottomPadding()
+                    ),
+                    onBookClick = { book ->
+                        selectedBookViewModel.onSelectedBook(book)
+                        navController.navigate(Route.BookDetail(book.id))
+                    }
+                )
+            }
 
-        onBookClick = { book ->
-            selectedBookViewModel.onSelectedBook(book)
-            navController.navigate(Route.BookDetail(book.id))
+            composable<Route.Profile> {
+                val viewModel = koinViewModel<ProfileViewModel>()
 
-//
-        },
-        onClickNavigate = {
-            navController.navigate(Route.BookSearch)
-        }
-    )
-}
+                ProfileScreenRoot(
 
-
-
-
-// 🔒 Telas futuras (comentadas para não quebrar)
-composable<Route.BookLibrary> {
-    val viewModel = koinViewModel<BookLibraryViewModel>()
-
-    // Usa o mesmo ViewModel compartilhado entre as telas
-    val selectedBookViewModel = it.sharedKoinViewModel<SelectedBookViewModel>(navController)
-
-    LaunchedEffect(true) {
-        selectedBookViewModel.onSelectedBook(null)
-    }
-
-    BookLibraryScreenRoot(
-        viewModel = viewModel,
-        modifier = Modifier.padding(
-            top =contentPadding.calculateTopPadding(),
-            bottom = contentPadding.calculateBottomPadding()
-        ),
-
-
-
-
-        onBookClick = { book ->
-            // Define o livro selecionado
-            selectedBookViewModel.onSelectedBook(book)
-            // Navega para o detalhe
-            navController.navigate(Route.BookDetail(book.id))
-        },
-    )
-}
-
-
-composable<Route.BookDetail> {
-    val viewModel = koinViewModel<BookDetailViewModel>()
-
-    val selectedBookViewModel =
-        it.sharedKoinViewModel<SelectedBookViewModel>(navController)
-    val selectedBook = selectedBookViewModel.selectedBook.collectAsStateWithLifecycle()
-
-    LaunchedEffect(selectedBook) {
-        selectedBook?.let {
-            viewModel.onAction(BookDetailAction.OnSelectedBookChange(selectedBook))
-        }
-
-    }
-
-    BookDetailScreenRootw(
-        viewModel = viewModel,
-        onBackClicks ={
-            navController.navigateUp()
-        }
-    )
-
-}
-
-
-
-composable<Route.BookSearch> {
-    val viewModel = koinViewModel<BookSearchViewModel>()
-
-    val selectedBokkViewModel = it.sharedKoinViewModel<SelectedBookViewModel>(navController)
-
-    val selectedVieModel = it.sharedKoinViewModel<FilterViewModel>(navController)
-
-
-    LaunchedEffect(key1 = true) {
-        selectedBokkViewModel.onSelectedBook(null)
-    }
-
-
-    SearchScreenRoot(
-        viewModel = viewModel,
-        OnBookClickSearch = { book ->
-            selectedBokkViewModel.onSelectedBook(book)
-            navController.navigate(Route.BookDetail(book.id))
-
-
-        },
-        onButtonSearchBack = {
-
-            navController.navigateUp()//(Route.BookList::class.qualifiedName!!)
-        },
-        OnNavigateFilterScreen = {
-
-            navController.navigate(Route.Filter)
-        }
-    )
-}
-
-
-composable<Route.Filter>{entry ->
-    // Encontramos a entrada (entry) da tela de busca que está "atrás" desta
-    val parentEntry = remember(entry){
-        navController.getBackStackEntry<Route.BookSearch>()
-    }
-
-    //  Pedimos o ViewModel ao Koin, mas passamos a tela de busca como "dona"
-    val viewModel = koinViewModel<BookSearchViewModel>(
-        viewModelStoreOwner = parentEntry
-    )
-    // val selectedVieModel = it.sharedKoinViewModel<FilterViewModel>(navController)
-
-
-    FilterScreenRoot(
-        viewModel = viewModel,
-        OnNavigateFilterBack = {
-            navController.navigateUp()
-
-        },
-        OnButtonFilterBack ={
-            navController.popBackStack()
-        }
-    )
-}
-
-
-
-
-
-
-
-
-
-// composable<Route.Profile> { ProfileScreen() }
-
-
-
-
-
+                    modifier = Modifier.padding(
+                        top = contentPadding.calculateTopPadding(),
+                        bottom = contentPadding.calculateBottomPadding()
+                    ),
+                    viewModel = viewModel
+                )
             }
 
 
-     }
+
+            // --- TELA: DETALHES ---
+            composable<Route.BookDetail> { entry ->
+                val viewModel = koinViewModel<BookDetailViewModel>()
+                val selectedBookViewModel = entry.sharedKoinViewModel<SelectedBookViewModel>(navController)
+
+                // Coleta o livro selecionado do ViewModel compartilhado
+                val selectedBookState by selectedBookViewModel.selectedBook.collectAsStateWithLifecycle()
+
+                // Sincroniza o detalhe sempre que o livro mudar
+                LaunchedEffect(selectedBookState) {
+                    selectedBookState?.let { book ->
+                        viewModel.onAction(BookDetailAction.OnSelectedBookChange(book))
+                    }
+                }
 
 
- }
 
+
+
+
+                BookDetailScreenRootw(
+                    viewModel = viewModel,
+                    onBackClicks = {
+                        navController.navigateUp()
+                    }
+                )
+            }
+
+            // --- TELA: PESQUISA ---
+            composable<Route.BookSearch> { entry ->
+                val viewModel = koinViewModel<BookSearchViewModel>()
+                val selectedBookViewModel = entry.sharedKoinViewModel<SelectedBookViewModel>(navController)
+
+                SearchScreenRoot(
+                    viewModel = viewModel,
+                    OnBookClickSearch = { book ->
+                        selectedBookViewModel.onSelectedBook(book)
+                        navController.navigate(Route.BookDetail(book.id))
+                    },
+                    onButtonSearchBack = {
+                        navController.navigateUp()
+                    },
+                    OnNavigateFilterScreen = {
+                        navController.navigate(Route.Filter)
+                    }
+                )
+            }
+
+            // --- TELA: FILTRO ---
+            composable<Route.Filter> { entry ->
+                val parentEntry = remember(entry) {
+                    navController.getBackStackEntry<Route.BookSearch>()
+                }
+                val viewModel = koinViewModel<BookSearchViewModel>(
+                    viewModelStoreOwner = parentEntry
+                )
+
+                FilterScreenRoot(
+                    viewModel = viewModel,
+                    OnNavigateFilterBack = {
+                        navController.navigateUp()
+                    },
+                    OnButtonFilterBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+    }
+}
 
 
 

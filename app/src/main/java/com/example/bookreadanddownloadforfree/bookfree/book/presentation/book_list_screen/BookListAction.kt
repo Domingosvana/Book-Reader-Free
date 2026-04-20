@@ -13,4 +13,7 @@ sealed interface BookListAction{
 
     data class  OnTabSelected(val index:Int): BookListAction
 
+    data object UpdategetRecommendedBooks: BookListAction
+
+
 }

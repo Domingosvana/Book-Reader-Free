@@ -25,11 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.bookreadanddownloadforfree.R
 
 import java.util.Calendar
 
@@ -62,7 +64,7 @@ fun YearPickerDialog(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Filtrar por Ano",
+                    text = stringResource(id = R.string.select_year),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -75,7 +77,7 @@ fun YearPickerDialog(
                     item {
                         SelectedDateRadio(
                             selected = (tempSelectedYear == null),
-                            text = "Todos os anos",
+                            text =stringResource(id = R.string.all_year) ,
                             onClick = {
                                 tempSelectedYear = null
                                 onYearSelected(null)
@@ -100,7 +102,7 @@ fun YearPickerDialog(
                     onClick = onDismiss,
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("FECHAR", color =MaterialTheme.colorScheme.onBackground)
+                    Text(stringResource(id = R.string.close), color =MaterialTheme.colorScheme.onBackground)
                 }
             }
         }

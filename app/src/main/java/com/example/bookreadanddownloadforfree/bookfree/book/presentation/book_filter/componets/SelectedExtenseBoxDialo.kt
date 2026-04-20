@@ -18,9 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.example.bookreadanddownloadforfree.R
 
 @Composable
 fun SelectedExtenseBoxDialo(
@@ -40,7 +42,7 @@ fun SelectedExtenseBoxDialo(
             usePlatformDefaultWidth = false // Desabilita largura padrão
         ),
         title = {
-            Text("Select Format", color = Color.White)
+            Text(stringResource(id = R.string.select_format), color = Color.White)
         },
         text = {
             Column {
@@ -87,12 +89,12 @@ fun SelectedExtenseBoxDialo(
                     containerColor = Color(0xFFBB86FC)
                 )
             ) {
-                Text("OK", color = Color.Black)
+                Text(stringResource(id = R.string.ok), color = Color.Black)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color(0xFFBB86FC))
+                Text(stringResource(id = R.string.cancel), color = Color(0xFFBB86FC))
             }
         },
         containerColor = Color(0xFF1E1E1E),

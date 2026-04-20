@@ -13,3 +13,37 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+
+# Gradle
+.gradle/
+build/
+
+# Local configuration
+
+# IDE
+.idea/
+
+# OS
+
+Thumbs.db
+
+# Logs
+*.log
+
+# Android Studio
+captures/
+.externalNativeBuild/
+
+# Keystore (MUITO IMPORTANTE)
+*.jks
+*.keystore
+
+# Environment files
+.env
+
+# Firebase / Google Services (se quiser proteger)
+google-services.json
+
+data
+core

@@ -68,6 +68,8 @@ data class Book(
     val isAvailable: Boolean?=false,
     val acsTokenLink:String?=null,
     val isSample: Boolean?=null,
+    val colors: List<Int> ,
+
    // val formats: Map<String, String>? = null,
 
 )

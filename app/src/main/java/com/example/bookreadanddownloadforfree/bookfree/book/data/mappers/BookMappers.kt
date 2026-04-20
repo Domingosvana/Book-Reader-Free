@@ -5,9 +5,11 @@ package com.example.bookreadanddownloadforfree.bookfree.book.data.mappers
 
 import android.util.Log
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.BookEntity
+
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.BookPopularEntity
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.SearchBookEntity
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.UserInterestEntity
+import com.example.bookreadanddownloadforfree.bookfree.book.data.database.bookGradients
 import com.example.bookreadanddownloadforfree.bookfree.book.data.dto.GoogleBookDto
 import com.example.bookreadanddownloadforfree.bookfree.book.data.dto.GutendexBookDto
 import com.example.bookreadanddownloadforfree.bookfree.book.data.dto.SearchedBookOpenLibraryDto
@@ -23,6 +25,9 @@ import kotlin.collections.firstOrNull
 // =============================================================================
 
 fun SearchedBookOpenLibraryDto.searchBookese(): Book {
+
+    // Escolhe o gradiente baseado no ID do livro antes de salvar
+
     val cleanId = id.removePrefix("/works/").removePrefix("/books/").trim()
     val idParaLeitura = ia?.firstOrNull()
     val linkFinal = if (idParaLeitura != null) {
@@ -47,12 +52,20 @@ fun SearchedBookOpenLibraryDto.searchBookese(): Book {
         numEditions = numEditions ?: 0,
         acsTokenLink = linkFinal,
         source = "OpenLibrary",
-        languages = languages?.map { OpenLibraryLanguageMapper.toDisplayName(it) } ?: emptyList(), // ✅ Mapeia os códigos de idioma da API
-        isFree = true
+        languages = languages?.map { OpenLibraryLanguageMapper.toDisplayName(it) }
+            ?: emptyList(), // ✅ Mapeia os códigos de idioma da API
+        isFree = true,
+        colors = listOf(),
     )
 }
 
 fun TrendingBookDto.toDomainTrending(): Book {
+
+    // Escolhe o gradiente baseado no ID do livro antes de salvar
+
+
+
+
     val cleanId = id.removePrefix("/works/").removePrefix("/books/").trim()
     val idParaLeitura = ia?.firstOrNull()
     val linkFinal = if (idParaLeitura != null) {
@@ -76,11 +89,16 @@ fun TrendingBookDto.toDomainTrending(): Book {
         averageRating = ratingAverage,
         ratingsCount = ratingsCount,
         numEditions = numEditions ?: 0,
-        source = "OpenLibrary"
+        source = "OpenLibrary",
+        colors = listOf()
+
     )
 }
 
 fun GoogleBookDto.toDomainSearchGoogleBookDto(): Book {
+
+
+
 
     val imageLinks = volumeInfo.imageLinks
     val coverUrl = imageLinks?.extraLarge?.replace("http://", "https://")?.substringBefore("&edge")
@@ -96,7 +114,13 @@ fun GoogleBookDto.toDomainSearchGoogleBookDto(): Book {
        // ?: "https://books.google.com" // Fallback final para evitar o NullPointerException
 val isFullBook = accessInfo?.viewability == "FULL" || accessInfo?.publicDomain == true
     Log.d("GOOGLE_LANG", "Título: ${volumeInfo.title} | Idioma Original: $volumeInfo.language")
+
+
+
+
+
     return Book(
+
 
         id = id,
         title = volumeInfo.title ?: "Título desconhecido",
@@ -116,7 +140,9 @@ val isFullBook = accessInfo?.viewability == "FULL" || accessInfo?.publicDomain =
         isSample = accessInfo?.accessViewStatus == "SAMPLE",
         publishedYear = volumeInfo.publishedDate?.substringBefore("-"),
         languages = listOf(GoogleLanguageMapper.toDisplayName(volumeInfo.language)),
-        source = "GoogleBooks"
+        source = "GoogleBooks",
+        colors = listOf()
+
     )
 }
 //publishedDate
@@ -130,9 +156,25 @@ val isFullBook = accessInfo?.viewability == "FULL" || accessInfo?.publicDomain =
  * Converte a lista de resultados da pesquisa para o Banco, dividindo por idioma.
  */
 fun List<Book>.toSearchEntity(query: String): List<SearchBookEntity> {
-    return this.flatMapIndexed { index, book ->
+
+    return this
+    .flatMapIndexed   { index, book ->
         // Garante que exista pelo menos um código de idioma
         val langNames = if (book.languages.isEmpty()) listOf("Portuguese") else book.languages
+
+        /*// 2. Calculamos as cores para ESTE livro específico dentro do loop
+        // Se o objeto 'book' já tiver cores, usamos elas. Se não, geramos pelo ID.
+        val selectedColors = if (book.colors.isNotEmpty()) {
+            book.colors
+        } else {
+            val gradientIndex = Math.abs(book.id.hashCode()) % bookGradients.size
+            bookGradients[gradientIndex]
+        }
+
+         */
+
+
+
         langNames.map { langName ->
           //  val prettyLang = getLanguageDisplayName(llangNames)
             SearchBookEntity(
@@ -140,7 +182,7 @@ fun List<Book>.toSearchEntity(query: String): List<SearchBookEntity> {
                 languages = langName, // CHAVE PRIMÁRIA PARTE 1
                 position = index,    // ✅ MANTÉM A ORDEM DA API
                 query = query.lowercase().trim(),
-                title = "${book.title} ($langName)", // ✅ Título formatado
+                title = book.title , // ✅ Título formatado
                 authors = book.authors,
                 publishedYear = book.publishedYear,
                 publisher = book.publisher,
@@ -160,7 +202,8 @@ fun List<Book>.toSearchEntity(query: String): List<SearchBookEntity> {
                 translators = book.translators,
                 copyright = book.copyright,
                 acsTokenLink = book.acsTokenLink,
-                cachedAt = System.currentTimeMillis()
+                cachedAt = System.currentTimeMillis(),
+
             )
         }
     }
@@ -171,17 +214,31 @@ fun List<Book>.toSearchEntity(query: String): List<SearchBookEntity> {
  * Converte a lista de livros populares para o Banco, dividindo por idioma.
  */
 fun List<Book>.toBookPopularEntity(): List<BookPopularEntity> {
-    return this.flatMapIndexed { index, book ->
+
+    return this
+        .flatMapIndexed { index, book ->
         val langNames = if (book.languages.isEmpty()) listOf("Portuguese") else book.languages
 
+            /*
+// 2. Calculamos as cores para ESTE livro específico dentro do loop
+        // Se o objeto 'book' já tiver cores, usamos elas. Se não, geramos pelo ID.
+        val selectedColors = if (book.colors.isNotEmpty()) {
+            book.colors
+        } else {
+            val gradientIndex = Math.abs(book.id.hashCode()) % bookGradients.size
+            bookGradients[gradientIndex]
+        }
+            */
+
         langNames.map { langName ->
+
             //val prettyLang = getLanguageDisplayName(langName)
             BookPopularEntity(
                 id = book.id,
                 languages = langName, // CHAVE PRIMÁRIA PARTE 1
                 priority = index,    // ✅ MANTÉM A ORDEM DE POPULARIDADE
                 cachedAtPopular = System.currentTimeMillis(),
-                title = "${book.title} ($langName)",
+                title = book.title,
                 authors = book.authors,
                 publishedYear = book.publishedYear,
                 publisher = book.publisher,
@@ -201,7 +258,7 @@ fun List<Book>.toBookPopularEntity(): List<BookPopularEntity> {
                 translators = book.translators,
                 copyright = book.copyright,
                  acsTokenLink= book.acsTokenLink,
-            )
+                           )
         }
     }
 }
@@ -234,13 +291,19 @@ fun SearchBookEntity.toDomain(): Book {
         translators = translators,
         copyright = copyright,
         acsTokenLink= acsTokenLink,
+        colors = listOf()
     )
-}
+        }
+
+
 
 
 //fun Book.cachedAtBookPopularEntity():  BookPopularEntity{
 
 fun Book.cachedAtBookPopularEntity():  BookPopularEntity{
+
+    // Escolhe o gradiente baseado no ID do livro antes de salvar
+
     return BookPopularEntity(
         id = id,
         title = title,
@@ -298,6 +361,7 @@ fun BookPopularEntity.toDomain(): Book {
         translators = translators,
         copyright = copyright,
         acsTokenLink= acsTokenLink,
+        colors = listOf()
     )
 }
 
@@ -307,7 +371,11 @@ fun BookPopularEntity.toDomain(): Book {
 // =============================================================================
 //Argument type mismatch: actual type is 'List<String>', but 'String' was expected.
 fun Book.markAsFavorite( ): BookEntity {
-    return BookEntity(
+    // Se o livro já tem cores (da pesquisa), usa elas. Se não, gera.
+
+
+
+    return  BookEntity(
         id = this.id,
         title = title,
         authors = authors,
@@ -334,6 +402,8 @@ fun Book.markAsFavorite( ): BookEntity {
         //copyright = copyright,
         // val formats: Map<String, String>? = null,
         priority = 0, // 👈 NOVO: Salva a posição (0, 1, 2, 3...)
+        favoritedAt = System.currentTimeMillis(),
+
 
 
 
@@ -379,6 +449,7 @@ fun BookPopularEntity.toBookPopularEntity():Book{
         translators = translators,
         copyright = copyright,
         acsTokenLink=acsTokenLink,
+        colors =listOf()
     )
 }
 
@@ -389,9 +460,10 @@ fun BookPopularEntity.toBookPopularEntity():Book{
 
 
 fun BookEntity.getFavoriteBookAll(selectedLanguage: String): Book {
+
     return Book(
         id = id,
-
+        colors =listOf() ,
         title = title,
         authors = authors, // ✅ não como string
         publishedYear = publishedYear,
@@ -417,13 +489,16 @@ fun BookEntity.getFavoriteBookAll(selectedLanguage: String): Book {
 
 
 
+
     )
 }
 
 // Transforma BookEntity (Banco) em Book (UI)
 fun BookEntity.toDomain(): Book {
+
     return Book(
         id = this.id,
+        //colors = this.colors,
         languages = listOf(this.languages), // Transforma a String única do banco em lista para a UI
         title = this.title,
         authors = this.authors,
@@ -440,6 +515,7 @@ fun BookEntity.toDomain(): Book {
         translators = this.translators,
         copyright = this.copyright,
         acsTokenLink= acsTokenLink,
+        colors = listOf()
        // priority = 0, // 👈 NOVO: Salva a posição (0, 1, 2, 3...)
 
 
@@ -457,6 +533,7 @@ fun BookEntity.toDomain(): Book {
 
 
 fun GutendexBookDto.toDomainSearchGutenberg(): Book {
+// Adicione o cálculo do gradiente aqui
 
     return Book(
         id = id.toString(),
@@ -480,7 +557,8 @@ fun GutendexBookDto.toDomainSearchGutenberg(): Book {
         retailPrice = null,
         isFree = true,
         printType = null,
-        contentVersion = null
+        contentVersion = null,
+        colors =listOf()// ✅ Agora tem cor!
     )
 }
 
@@ -541,6 +619,7 @@ fun getLanguageDisplayName(langCode: String?): String {
 
 
 object GoogleLanguageMapper {
+
     private val map = mapOf(
         "en" to "English", "es"    to "Spanish", "fr" to "French", "de" to "German",
         "pt-BR" to "Portuguese", "it" to "Italian", "ru" to "Russian", "zh" to "Chinese (Mandarin)",

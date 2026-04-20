@@ -1,6 +1,7 @@
 package com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_libraryscreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -160,7 +161,7 @@ fun BookLibraryScreen(
         TopAppBar(
             title = {
                 Text(
-                    text = "Biblioteca",
+                    text = stringResource(id=R.string.library),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.onBackground
@@ -197,7 +198,7 @@ fun BookLibraryScreen(
 
                     ){
                         Text(
-                            text = "FAVORITOS",
+                            text = stringResource(id= R.string.favorite) ,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(Modifier.width(6.dp))
@@ -246,7 +247,7 @@ fun BookLibraryScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "DOWNLOAD",
+                        text = stringResource(id= R.string.download),
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
@@ -255,27 +256,46 @@ fun BookLibraryScreen(
 
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+
+
+
+
+
         ) { page ->
             when (page) {
                 0 -> {
 
                     if (state.favorites.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.no_favorite_books),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_favorite_books),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        }
+
                     } else {
 
-                        BookListFavorite(
-                            book = state.favorites,
-                            onBookClick = {onAction(BookLibraryAction.OnclickBook(it))},
-                            FavoriteClick = { book -> onAction(BookLibraryAction.OnFavoriteClick(book)) },
-                            isFavorite = true,
-                            modifier = Modifier.weight(1f),
-                            scrollState = favoriteListState
-                        )
+                       Box(
+                           modifier = Modifier.fillMaxSize(),
+                           contentAlignment = Alignment.TopCenter
+                       ) {
+                           BookListFavorite(
+                               book = state.favorites,
+                               onBookClick = {onAction(BookLibraryAction.OnclickBook(it))},
+                               FavoriteClick = { book -> onAction(BookLibraryAction.OnFavoriteClick(book)) },
+                               isFavorite = true,
+                               modifier = Modifier,
+                               scrollState = favoriteListState
+                           )
+                       }
+
+
 
                     }
 
@@ -286,7 +306,9 @@ fun BookLibraryScreen(
                 }
                 1 -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Livros baixados", color = Color.White)
+                        Text(stringResource(id = R.string.downloadform),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                 }
             }

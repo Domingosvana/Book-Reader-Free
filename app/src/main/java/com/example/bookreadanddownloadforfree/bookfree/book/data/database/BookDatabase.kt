@@ -13,6 +13,7 @@ import com.example.bookreadanddownloadforfree.bookfree.book.data.database.BookDa
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.BookEntity
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.BookPopularDao
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.BookPopularEntity
+import com.example.bookreadanddownloadforfree.bookfree.book.data.database.ColorListConverter
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.SearchBookDao
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.SearchBookEntity
 import com.example.bookreadanddownloadforfree.bookfree.book.data.database.StringListTypeConverter
@@ -22,10 +23,12 @@ import com.example.bookreadanddownloadforfree.bookfree.book.data.database.UserIn
 
 @Database(
     entities = [BookEntity::class, SearchBookEntity::class, BookPopularEntity::class, UserInterestEntity::class],
-    version = 12,
+    version = 16,
     exportSchema = false // ✅ importante ativar se quiser exportar o schema
 )
-@TypeConverters(StringListTypeConverter::class)
+@TypeConverters(StringListTypeConverter::class,ColorListConverter::class)
+
+
 abstract class BookDatabase : RoomDatabase() {
     abstract val bookDao: BookDao
     abstract  val searchBookDao: SearchBookDao

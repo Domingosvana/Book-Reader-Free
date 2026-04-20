@@ -1,6 +1,7 @@
 package com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_list_screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +46,7 @@ import kotlinx.coroutines.launch
 // "key,title,author_name,first_publish_year,isbn,cover_i,edition_count,subject,ia"
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.style.TextDecoration
 import com.example.bookreadanddownloadforfree.bookfree.book.presentation.book_list_screen.componets.BookSearchBarNavigate
 import com.example.bookreadanddownloadforfree.ui.theme.BookReadAndDownloadForFreeTheme
 import org.koin.androidx.compose.koinViewModel
@@ -54,6 +57,8 @@ fun BookListScreenRoot(
     viewModel: BookListViewModel = koinViewModel(),
     onBookClick: (Book) -> Unit,
     onClickNavigate: () -> Unit,
+   // updategetRecommendedBooks: () -> Unit,
+
     modifier: Modifier
 ){
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -64,6 +69,10 @@ fun BookListScreenRoot(
                 is BookListAction.OnBookClick ->onBookClick(action.book)
 
                 is BookListAction.OnClickNavigates -> onClickNavigate()
+
+               // is BookListAction.UpdategetRecommendedBooks -> updategetRecommendedBooks()
+
+
 
                 else -> Unit
             }
@@ -192,6 +201,7 @@ fun BookListScreen(
                                 ) {
                                     Text(
                                         text = stringResource(id = R.string.recomendacoes ),
+                                        style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onBackground
                                     )
                                 }
@@ -213,6 +223,7 @@ fun BookListScreen(
                                 ) {
                                     Text(
                                         text =stringResource(id = R.string.populares ),
+                                        style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onBackground
                                     )
                                 }
@@ -245,12 +256,32 @@ fun BookListScreen(
 
 
                                        state.getRecommendedBooks.isEmpty() ->{
-                                           Text(
-                                               text = stringResource(R.string.sem_livros_recomendados),
-                                              textAlign = TextAlign.Center,
-                                               style = MaterialTheme.typography.headlineSmall,
-                                               color = MaterialTheme.colorScheme.error
-                                           )
+                                           Column(
+                                               verticalArrangement = Arrangement.Center,
+
+                                               modifier = Modifier
+                                                   .padding(20.dp)
+
+                                           ) {
+                                               /*
+                                               Text(
+                                                   text = stringResource(R.string.sem_livros_recomendados),
+                                                   textAlign = TextAlign.Center,
+                                                   style = MaterialTheme.typography.bodyMedium,
+                                                   color = MaterialTheme.colorScheme.error
+                                               )
+
+                                                */
+
+                                               buttomupdaterecomend(
+                                                   onClickUpdateRecomend = {
+                                                       onAction(BookListAction.UpdategetRecommendedBooks)
+                                                   },
+                                                   modifier = Modifier
+                                               )
+                                           }
+
+
 
                                        }
 
@@ -259,7 +290,7 @@ fun BookListScreen(
                                                    Text(
                                                        state.errorMessagens.asString(),
                                                        textAlign = TextAlign.Center,
-                                                       style = MaterialTheme.typography.labelMedium,
+                                                       style = MaterialTheme.typography.bodyLarge,
                                                    )
                                                }
 
@@ -275,7 +306,7 @@ fun BookListScreen(
                                                     Text(
                                                         state.errorMessagens.asString(),
                                                         textAlign = TextAlign.Center,
-                                                        style = MaterialTheme.typography.headlineSmall,
+                                                        style = MaterialTheme.typography.bodyLarge,
                                                     )
                                                 }
 
@@ -318,7 +349,7 @@ fun BookListScreen(
                                                    Text(
                                                        text = state.errorMessagens.asString(),
                                                        textAlign = TextAlign.Center,
-                                                       style = MaterialTheme.typography.headlineSmall,
+                                                       style = MaterialTheme.typography.bodyLarge,
                                                        color = MaterialTheme.colorScheme.surfaceBright
                                                    )
                                                }
@@ -394,7 +425,7 @@ fun DarkBookListScreenPreview( ){
 
 
 
-
+//booklist/resolver_imagem
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -412,9 +443,52 @@ fun BookListScreenPreview( ){
 }
 
 
+@Composable
+fun  buttomupdaterecomend(modifier: Modifier = Modifier,
+            onClickUpdateRecomend:() -> Unit
+            ) {
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+
+            TextButton(
+                onClick =  onClickUpdateRecomend ,
+                modifier = modifier
+
+            ) {
+                Text(text = ( stringResource(id = R.string.update_recomendacoes)),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textDecoration = TextDecoration.Underline
+                    )
+
+            }
+
+        }
+
+
+}
 
 
 
+
+
+
+
+
+
+@Preview
+@Composable
+fun  buttompreview(modifier: Modifier = Modifier) {
+    buttomupdaterecomend(
+                onClickUpdateRecomend = {},
+                modifier = modifier
+            )
+}
 
 
 

@@ -116,7 +116,8 @@ fun BookListItemPopularPreview() {
             numEditions = 234,
             publisher = "",
             format = "",
-            source = ""
+            source = "",
+            colors = listOf()
         ),
         onClickPopularBook = {},
         modifier = Modifier

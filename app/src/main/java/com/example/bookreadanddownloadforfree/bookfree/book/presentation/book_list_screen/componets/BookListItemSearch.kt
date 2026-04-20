@@ -271,46 +271,46 @@ fun BookListItemSearch(
                 .height(IntrinsicSize.Min), // Faz a Row ter a altura da maior coluna
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // --- 1. SEÇÃO DA CAPA ---
+            // --- SEÇÃO DA CAPA CORRIGIDA ---
             Box(
                 modifier = Modifier
-                    .width(100.dp) // Largura fixa para manter o padrão
-                    .height(150.dp), // Altura fixa para evitar saltos no layout
+                    .width(100.dp)
+                    .height(150.dp),
                 contentAlignment = Alignment.Center
             ) {
-                var imageLoadResult by remember { mutableStateOf<Result<Painter>?>(null) }
+                // 1. Verificamos se a URL é minimamente válida
+                val isUrlInvalid = book.coverUrl.isNullOrBlank() ||
+                        book.coverUrl.contains("placeholder") ||
+                        book.coverUrl.contains("no_image")
 
-                val painter = rememberAsyncImagePainter(
-                    model = book.coverUrl,
-                    contentScale = ContentScale.Crop,
-                    onSuccess = { imageLoadResult = Result.success(it.painter) },
-                    onError = { imageLoadResult = Result.failure(it.result.throwable) }
-                )
+                if (isUrlInvalid) {
+                    // SE A URL FOR RUIM, MOSTRA O GRADIENTE DIRETO
+                    ImagemError(book = book, modifier = Modifier.fillMaxSize())
+                } else {
+                    var imageLoadResult by remember { mutableStateOf<Result<Painter>?>(null) }
+                    val painter = rememberAsyncImagePainter(
+                        model = book.coverUrl,
+                        contentScale = ContentScale.Crop,
+                        onSuccess = { imageLoadResult = Result.success(it.painter) },
+                        onError = { imageLoadResult = Result.failure(it.result.throwable) }
+                    )
 
-                val painterState by painter.state.collectAsStateWithLifecycle()
-                val transition by animateFloatAsState(
-                    targetValue = if (painterState is AsyncImagePainter.State.Success) 1f else 0f,
-                    animationSpec = tween(durationMillis = 600)
-                )
+                    val painterState by painter.state.collectAsStateWithLifecycle()
 
-                when (val result = imageLoadResult) {
-                    null -> PulseAnimation(modifier = Modifier.fillMaxSize())
-                    else -> {
-                        if (result.isSuccess) {
-                            Image(
-                                painter = painter,
-                                contentDescription = book.title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .graphicsLayer {
-                                        alpha = transition
-                                        scaleX = 0.9f + (0.1f * transition)
-                                        scaleY = 0.9f + (0.1f * transition)
-                                    }
-                            )
-                        } else {
-                            ImagemError(book = book)
+                    when (val result = imageLoadResult) {
+                        null -> PulseAnimation(modifier = Modifier.fillMaxSize())
+                        else -> {
+                            if (result.isSuccess) {
+                                Image(
+                                    painter = painter,
+                                    contentDescription = book.title,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                // SE O DOWNLOAD FALHAR, MOSTRA O GRADIENTE
+                                ImagemError(book = book, modifier = Modifier.fillMaxSize())
+                            }
                         }
                     }
                 }
@@ -460,7 +460,8 @@ fun BookListItemSearchPreview(){
             numEditions = 234,
             publisher = "",
             format = "",
-            source = ""
+            source = "",
+            colors = listOf()
         ),
         onClick = {},
         onFavoriteClick = {},

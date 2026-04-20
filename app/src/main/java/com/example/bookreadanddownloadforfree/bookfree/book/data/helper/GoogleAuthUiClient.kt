@@ -1,51 +1,155 @@
 package com.example.bookreadanddownloadforfree.bookfree.book.data.helper
 
-import android.content.Context
-import android.credentials.GetCredentialException
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
 
+
+
+
+
+
+
+
+/*
+import android.content.Context
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
 import com.ango.foodhub.ui.constid.GoogleServiceClientID
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class GoogleAuthUiClient(
-    // Remova o 'val context' do construtor se quiser, ou mantenha apenas o manager
-    private val credentialManager: androidx.credentials.CredentialManager
+    private val credentialManager: CredentialManager
 ) {
-    // Agora a função recebe o contexto da Activity aqui!
-    suspend fun signIn(activityContext: android.content.Context): String? {
-        return try {
-            val request = buildSignInRequest(activityContext)
 
-            // USAMOS O CONTEXTO DA ACTIVITY AQUI
-            val result = credentialManager.getCredential(activityContext, request)
-
+    suspend fun signIn(context: Context): String? = withContext(Dispatchers.Main) {
+        try {
+            val request = buildSignInRequest()
+            val result = credentialManager.getCredential(context, request)
             val credential = result.credential
-            if (credential is androidx.credentials.CustomCredential &&
-                credential.type == com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
 
-                val googleIdTokenCredential = com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.createFrom(credential.data)
+            if (credential is androidx.credentials.CustomCredential &&
+                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            ) {
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                 googleIdTokenCredential.idToken
-            } else null
+            } else {
+                null
+            }
         } catch (e: Exception) {
-            android.util.Log.e("GoogleAuth", "Erro: ${e.message}")
+            android.util.Log.e("GoogleAuth", "Erro no signIn: ${e.message}", e)
             null
         }
     }
 
-    private fun buildSignInRequest(context: android.content.Context): androidx.credentials.GetCredentialRequest {
-        val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
+    private fun buildSignInRequest(): GetCredentialRequest {
+        val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(com.ango.foodhub.ui.constid.GoogleServiceClientID)
-            .setAutoSelectEnabled(true)
+            .setServerClientId(GoogleServiceClientID) // teu client ID
+            .setAutoSelectEnabled(true)           // ← Muito importante para reduzir telas
             .build()
 
-        return androidx.credentials.GetCredentialRequest.Builder()
+        return GetCredentialRequest.Builder()
             .addCredentialOption(googleIdOption)
             .build()
+    }
+}
+
+ */
+
+
+
+
+
+import android.content.Context
+import android.util.Log
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import com.ango.foodhub.ui.constid.GoogleServiceClientID
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
+/*
+class GoogleAuthUiClient(
+    private val credentialManager: CredentialManager,
+
+) {
+    // Removido withContext(Dispatchers.Main) daqui para não travar a UI Thread antes da hora
+    suspend fun signIn(context: Context): String? {
+        return try {
+            val request = buildSignInRequest()
+            val result = credentialManager.getCredential(context, request)
+            val credential = result.credential
+
+            if (credential is androidx.credentials.CustomCredential &&
+                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+            ) {
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                googleIdTokenCredential.idToken
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            // Se o usuário clicar fora ou voltar, relançamos para a Coroutine saber que parou
+            if (e is CancellationException) throw e
+            Log.e("GoogleAuth", "Erro no signIn: ${e.message}")
+            null
+        }
+    }
+
+
+
+    private fun buildSignInRequest(): GetCredentialRequest {
+        val googleIdOption = GetGoogleIdOption.Builder()
+
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(GoogleServiceClientID)
+            .setAutoSelectEnabled(true) // Mude para FALSE para evitar "No credentials available"
+            .build()
+
+        return GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+    }
+
+
+}
+
+ */
+
+
+class GoogleAuthUiClient(
+    private val credentialManager: CredentialManager
+) {
+    suspend fun signIn(context: Context): String? {
+        return try {
+            val request = GetCredentialRequest.Builder()
+                .addCredentialOption(
+                    GetGoogleIdOption.Builder()
+                        .setFilterByAuthorizedAccounts(false)
+                        .setServerClientId(GoogleServiceClientID)
+                        .setAutoSelectEnabled(false) // Deixe FALSE para o usuário ver a conta
+                        .build()
+                )
+                .build()
+
+            // A chamada precisa ser explicitamente na Main para não haver delay de renderização
+            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                credentialManager.getCredential(context = context, request = request)
+            }
+
+            val credential = result.credential
+            if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                GoogleIdTokenCredential.createFrom(credential.data).idToken
+            } else null
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            null
+        }
     }
 }

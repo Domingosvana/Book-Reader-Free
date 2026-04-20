@@ -31,7 +31,8 @@ private val bookse = (1..100).map{
         numEditions = 234,
         publisher = "",
         format = "",
-        source = ""
+        source = "",
+        colors = listOf()
     )
 }
 

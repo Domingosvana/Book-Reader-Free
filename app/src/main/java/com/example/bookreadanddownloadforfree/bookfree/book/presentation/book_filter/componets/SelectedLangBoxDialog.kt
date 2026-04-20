@@ -35,11 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.bookreadanddownloadforfree.R
 
 @Composable
 fun SelectedLangBoxDialog(
@@ -128,7 +130,7 @@ fun SelectedLangBoxDialog(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 // Título
-                Text("Selecionar Idiomas", color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(id = R.string.select_language), color = MaterialTheme.colorScheme.onBackground, style = MaterialTheme.typography.titleLarge)
 
                 // 3. Campo de Pesquisa (Search Bar)
                 OutlinedTextField(
@@ -137,12 +139,12 @@ fun SelectedLangBoxDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
-                    placeholder = { Text("Pesquisar idioma...", color = Color.Gray) },
+                    placeholder = { Text(stringResource(id = R.string.search_language), color = Color.Gray) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Limpar", tint =MaterialTheme.colorScheme.onBackground)
+                                Icon(Icons.Default.Clear, contentDescription =stringResource(id = R.string.clear), tint =MaterialTheme.colorScheme.onBackground)
                             }
                         }
                     },
@@ -170,7 +172,7 @@ fun SelectedLangBoxDialog(
 
                 // Botões de Ação
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismiss) { Text("CANCELAR", color = Color.Gray) }
+                    TextButton(onClick = onDismiss) { Text(stringResource(id = R.string.cancel), color = Color.Gray) }
                     TextButton(onClick = {
                         onButtonOk()
                         onDismiss()

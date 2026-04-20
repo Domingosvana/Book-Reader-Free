@@ -55,6 +55,7 @@ import coil3.compose.rememberAsyncImagePainter
 import com.example.bookreadanddownloadforfree.R
 import com.example.bookreadanddownloadforfree.bookfree.book.domain.Book
 import com.example.bookreadanddownloadforfree.bookfree.core.presentation.PulseAnimation
+
 import kotlin.math.round
 
 
@@ -103,45 +104,57 @@ fun BookListItemFavorite(
 
         ) {
             // --- 1. SEÇÃO DA CAPA ---
+            // --- 1. SEÇÃO DA CAPA (Pesquisa) ---
             Box(
                 modifier = Modifier
-                    .width(100.dp) // Largura fixa para manter o padrão
-                    .height(150.dp), // Altura fixa para evitar saltos no layout
+                    .width(100.dp)
+                    .height(150.dp),
                 contentAlignment = Alignment.Center
             ) {
-                var imageLoadResult by remember { mutableStateOf<Result<Painter>?>(null) }
+                // ✅ PASSO 1: Verificação manual da URL
+                val isUrlInvalid = book.coverUrl.isNullOrBlank() ||
+                        book.coverUrl.contains("placeholder") ||
+                        book.coverUrl.contains("no_image")
 
-                val painter = rememberAsyncImagePainter(
-                    model = book.coverUrl,
-                    contentScale = ContentScale.Crop,
-                    onSuccess = { imageLoadResult = Result.success(it.painter) },
-                    onError = { imageLoadResult = Result.failure(it.result.throwable) }
-                )
+                if (isUrlInvalid) {
+                    // Se a URL for nitidamente ruim, nem tenta carregar, mostra o erro direto
+                    ImagemError(book = book, modifier = Modifier.fillMaxSize())
+                } else {
+                    var imageLoadResult by remember { mutableStateOf<Result<Painter>?>(null) }
 
-                val painterState by painter.state.collectAsStateWithLifecycle()
-                val transition by animateFloatAsState(
-                    targetValue = if (painterState is AsyncImagePainter.State.Success) 1f else 0f,
-                    animationSpec = tween(durationMillis = 600)
-                )
+                    val painter = rememberAsyncImagePainter(
+                        model = book.coverUrl,
+                        contentScale = ContentScale.Crop,
+                        onSuccess = { imageLoadResult = Result.success(it.painter) },
+                        onError = { imageLoadResult = Result.failure(it.result.throwable) }
+                    )
 
-                when (val result = imageLoadResult) {
-                    null -> PulseAnimation(modifier = Modifier.fillMaxSize())
-                    else -> {
-                        if (result.isSuccess) {
-                            Image(
-                                painter = painter,
-                                contentDescription = book.title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .graphicsLayer {
-                                        alpha = transition
-                                        scaleX = 0.9f + (0.1f * transition)
-                                        scaleY = 0.9f + (0.1f * transition)
-                                    }
-                            )
-                        } else {
-                            ImagemError(book = book)
+                    val painterState by painter.state.collectAsStateWithLifecycle()
+                    val transition by animateFloatAsState(
+                        targetValue = if (painterState is AsyncImagePainter.State.Success) 1f else 0f,
+                        animationSpec = tween(durationMillis = 600)
+                    )
+
+                    when (val result = imageLoadResult) {
+                        null -> PulseAnimation(modifier = Modifier.fillMaxSize())
+                        else -> {
+                            if (result.isSuccess) {
+                                Image(
+                                    painter = painter,
+                                    contentDescription = book.title,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .graphicsLayer {
+                                            alpha = transition
+                                            scaleX = 0.9f + (0.1f * transition)
+                                            scaleY = 0.9f + (0.1f * transition)
+                                        }
+                                )
+                            } else {
+                                // Se o Coil falhar no download (Erro 404, etc)
+                                ImagemError(book = book, modifier = Modifier.fillMaxSize())
+                            }
                         }
                     }
                 }
@@ -501,7 +514,8 @@ fun BookListItemSearchPreview(){
             numEditions = 234,
             publisher = "",
             format = "",
-            source = ""
+            source = "",
+            colors = listOf()
         ),
         onClick = {},
         onFavoriteClick = {},

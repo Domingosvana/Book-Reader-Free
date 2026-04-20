@@ -78,6 +78,10 @@ class BookListViewModel(
                 _state.update{it.copy(  )}
             }
 
+            is BookListAction.UpdategetRecommendedBooks -> {
+                geterecomendedBooks()
+            }
+
             else -> Unit
 
         }
@@ -141,33 +145,36 @@ private fun getPopularBooks()=viewModelScope.launch {
 
 
 
-    private fun geterecomendedBooks()=viewModelScope.launch {
+    private fun geterecomendedBooks() {
 
         _state.update {
             it.copy(isloading = true)
         }
-
-        bookRepository.getRecommendedBooks()
-            .onSuccess { getRecommendedBooks ->
-                _state.update {
-                    it.copy(
-                        isloading = false,
-                        errorMessagens = null,
-                        getRecommendedBooks = getRecommendedBooks
-
-                    )
-                }
-            }
-            .onError { error   ->
-                _state.update {
-                    it.copy(
-                        isloading = false,
-                        getPopularBooks = emptyList(),
-                        errorMessagens = error.toUiText(),
+        viewModelScope.launch {
+            bookRepository.getRecommendedBooks()
+                .onSuccess { getRecommendedBooks ->
+                    _state.update {
+                        it.copy(
+                            isloading = false,
+                            errorMessagens = null,
+                            getRecommendedBooks = getRecommendedBooks
 
                         )
+                    }
                 }
-            }
+                .onError { error   ->
+                    _state.update {
+                        it.copy(
+                            isloading = false,
+                            getPopularBooks = emptyList(),
+                            errorMessagens = error.toUiText(),
+
+                            )
+                    }
+                }
+
+        }
+
 
 
     }

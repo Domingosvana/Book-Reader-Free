@@ -13,10 +13,10 @@ interface BookDao {
     @Upsert
     suspend fun upsert(books: BookEntity)
 
-    @Query("SELECT * FROM BookEntity")
+    @Query("SELECT * FROM BookEntity ORDER BY favoritedAt DESC")
     fun getFavoriteBooks(): Flow<List<BookEntity>>
 
-    @Query("SELECT * FROM BookEntity WHERE id = :id")
+    @Query("SELECT * FROM BookEntity  WHERE id = :id ORDER BY favoritedAt DESC")
     suspend fun getBookFavoriteById(id:String): BookEntity?
 
 
@@ -24,7 +24,7 @@ interface BookDao {
     suspend fun  deletedFavoriteBook(id: String, languages: String)
 
 
-    @Query("SELECT COUNT(*) FROM BookEntity")
+    @Query("SELECT  COUNT(*)   FROM BookEntity")
     fun countTotalDeFavorite(): Flow<Int>
 
     //@Query("SELECT * FROM BookEntity")

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -164,7 +165,8 @@ fun SearchScreen(
                     ) {
                         Text(
                             text = state.errorMessageSearch.asString(),
-                            color = Color.LightGray,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.surfaceBright,
                             modifier = Modifier.padding(horizontal = 32.dp),
                             textAlign = TextAlign.Center
                         )
@@ -180,6 +182,7 @@ fun SearchScreen(
                     ) {
                         Text(
                                text = stringResource(R.string.search_results),
+                              style = MaterialTheme.typography.bodyLarge,
                                modifier = Modifier.padding(vertical = 12.dp)
                              )
                     }

@@ -73,6 +73,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -111,7 +112,7 @@ fun BookDetailScreenRootw(
 
 }
 
-
+//book_detail/Bookdetailscreenw)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BookDetailScreenW(
@@ -135,6 +136,7 @@ private fun BookDetailScreenW(
     }
 
     Scaffold(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
         topBar = {
             BookDetailScreenTopBar(onBackClicks = { onAction(BookDetailAction.OnBackClickDetail) })
         },
@@ -142,13 +144,14 @@ private fun BookDetailScreenW(
     ) { innerPadding ->
         Column(
             modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(scrollState)
         ) {
             state.book?.let { book ->
                 BlurredImageBackground(
-                    coverUrl = book.coverUrl,
+                    book = state.book,
                     isFavorite = state.isFavorite,
                     onFavoriteClick = { onAction(BookDetailAction.OnFavoriteClickDetail) },
                     modifier = Modifier.fillMaxWidth()
@@ -166,11 +169,11 @@ private fun BookDetailScreenW(
                     TabRow(
                         selectedTabIndex = pagerState.currentPage,
                         containerColor = MaterialTheme.colorScheme.background, // Fundo dinâmico
-                        contentColor = MaterialTheme.colorScheme.onBackground, // Texto dinâmico
+                        contentColor = MaterialTheme.colorScheme.background, // Texto dinâmico
                         indicator = { tabPositions ->
                             TabRowDefaults.SecondaryIndicator(
                                 modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                                color = MaterialTheme.colorScheme.primary // Indicador com a cor primária do tema
+                                color = MaterialTheme.colorScheme.onBackground // Indicador com a cor primária do tema
                             )
                         }
                     ) {
@@ -184,8 +187,8 @@ private fun BookDetailScreenW(
                                         text = stringResource(titleRes),
                                         // Cor muda se selecionado ou não
                                         color = if (pagerState.currentPage == index)
-                                            MaterialTheme.colorScheme.primary
-                                        else MaterialTheme.colorScheme.onSurfaceVariant
+                                            MaterialTheme.colorScheme.onBackground
+                                        else MaterialTheme.colorScheme.onBackground
                                     )
                                 }
                             )
@@ -248,8 +251,8 @@ fun DownloadButton(book: Book, onOpenSheet: () -> Unit) {
             .padding(horizontal = 20.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary, // Cor principal
-            contentColor = MaterialTheme.colorScheme.onPrimary  // Cor do texto sobre a principal
+            containerColor = MaterialTheme.colorScheme.surfaceBright, // Cor principal
+            contentColor = MaterialTheme.colorScheme.onBackground  // Cor do texto sobre a principal
         )
     ) {
         Text(if (isFree) "Opções de Download" else "Ver no Site Oficial")
@@ -262,38 +265,35 @@ fun DownloadButton(book: Book, onOpenSheet: () -> Unit) {
 
 @Composable
 fun TabInfoConteudo(book: Book) {
-    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(modifier = Modifier
+        .background(MaterialTheme.colorScheme.background)
+        .padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // Use .toString() em campos que podem ser números
         InfoRow(label = stringResource(R.string.publisher), value = book.publisher ?: "---")
 
         InfoRow(
-            label = "Ano de Publicação",
+            label = stringResource(R.string.anoDePublicacao),
             value = book.publishedYear?.toString() ?: "---"
         )
 
         InfoRow(
-            label = "Edições/Páginas",
+            label =stringResource(R.string.edicoes_paginas) ,
             value = book.numEditions?.toString() ?: "---"
         )
 
         InfoRow(
-            label = "Formato",
+            label = stringResource(R.string.formato),
             value = book.format?.uppercase() ?: "---"
         )
 
         if (book.languages.isNotEmpty()) {
-            Text("Idiomas Disponíveis", style = MaterialTheme.typography.titleSmall)
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                book.languages.forEach { lang ->
-                    BookChip(size = ChipSize.SMALL) {
-                        Text(text = lang.uppercase())
-                    }
-                }
-            }
+            InfoRow(
+                label = stringResource(R.string.idioma),
+                value = book.languages.joinToString(", ") .uppercase()?: "---"
+            )
+
         }
+
     }
 }
 
@@ -301,7 +301,7 @@ fun TabInfoConteudo(book: Book) {
 fun InfoRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+        Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -316,6 +316,7 @@ fun DetailHeader(book: Book) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -368,7 +369,7 @@ fun DetailHeader(book: Book) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = book.languages.firstOrNull()?.uppercase() ?: "---",
+                    text = book.languages.joinToString(", ").uppercase() ?: "---",
                     style = MaterialTheme.typography.bodyMedium
                 )
 
@@ -443,7 +444,7 @@ fun TabSinopseConteudo(description: String?) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Nenhuma sinopse disponível para este exemplar.",
+                        text =stringResource(R.string.nenhuma_sinopse_disponivel_para_este_exemplar) ,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -885,10 +886,11 @@ private fun BlurredImageBackgroundpreviewW() {
 fun BookDetailScreenTopBar(
     onBackClicks: () -> Unit
 ) {
-    var dominantColor by remember { mutableStateOf(Color.Transparent) }
+    val colorScheme = MaterialTheme.colorScheme
+    //var dominantColor by remember { mutableStateOf(MaterialTheme.colorScheme.surfaceBright) }
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = dominantColor.copy(alpha = 0.9f),
+            containerColor = colorScheme.surfaceBright,
         ),
      navigationIcon = {
          IconButton(onClick  =onBackClicks ){
@@ -1164,7 +1166,7 @@ fun DownloadBottomSheet(
                 ) {
                     BottomSheetDefaults.DragHandle()
                     Text(
-                        text = "Opções de Download",
+                        text =stringResource(R.string.opcoes_de_download) ,
                         style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(Modifier.height(10.dp))

@@ -123,7 +123,8 @@ fun BookListPreview() {
                 numEditions = 234,
                 publisher = "",
                 format = "",
-                source = ""
+                source = "",
+                colors = listOf()
             )
             ),
 

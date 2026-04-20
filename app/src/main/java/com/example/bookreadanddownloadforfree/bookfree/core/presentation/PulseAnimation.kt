@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -40,7 +41,7 @@ fun PulseAnimation(modifier: Modifier = Modifier) {
             }
             .border(
                 width = 5.dp,
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.surfaceBright,
                 shape = CircleShape
             )
     )

@@ -115,7 +115,7 @@ fun FilterScreen(
         ) {
 
             Text(
-                text = "Período de Lançamento",
+                text = stringResource(id = R.string.lauch_book),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -127,24 +127,24 @@ fun FilterScreen(
                 Box(modifier = Modifier.weight(1f)) {
                     ButtonFilter(
                         onPenCardClick = { mostrarAnoDe = true },
-                        onValue = state.value.selectedYearDeMax ?: "Início",
-                        onValueTitle = "Ano (de)"
+                        onValue = state.value.selectedYearDeMax ?:stringResource(id = R.string.ate_year) ,
+                        onValueTitle = stringResource(id = R.string.first_year)
                     )
                 }
                 Box(modifier = Modifier.weight(1f)) {
                     ButtonFilter(
                         onPenCardClick = { mostrarAnoTe = true },
-                        onValue = state.value.selectedYearDeMin ?: "Fim",
-                        onValueTitle = "Ano (até)"
+                        onValue = state.value.selectedYearDeMin ?:stringResource(id = R.string.and_year) ,
+                        onValueTitle =stringResource(id = R.string.still_year)
                     )
                 }
             }
 
             ButtonFilter(
                 onPenCardClick = { mostrarLang = true },
-                onValue = if (state.value.selectedLanguages.isEmpty()) "Todos os idiomas"
+                onValue = if (state.value.selectedLanguages.isEmpty()) stringResource(R.string.todos_idiomas)
                 else state.value.selectedLanguages.joinToString(", "),
-                onValueTitle = "Idiomas Selecionados"
+                onValueTitle =  stringResource(id = R.string.idiomas)
             )
 
             TextButton(
@@ -159,7 +159,7 @@ fun FilterScreen(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "LIMPAR TODOS OS FILTROS",
+                    text = stringResource(id = R.string.clear_filters),
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -180,7 +180,7 @@ fun FilterScreen(
                     containerColor = MaterialTheme.colorScheme.surfaceBright,
                 )
             ) {
-                Text("APLICAR FILTROS", fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground)
+                Text(stringResource(id = R.string.aplicar_filter), fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground)
             }
         }
     }

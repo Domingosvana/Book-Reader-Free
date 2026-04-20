@@ -55,7 +55,7 @@ class BookDetailViewModel(
      fun onAction(action: BookDetailAction){
         when(action){
             is BookDetailAction.OnSelectedBookChange ->{
-                _state.update { it.copy(book=action.book.value ) }
+                _state.update { it.copy(book=action.book ) }
             }
 
 
